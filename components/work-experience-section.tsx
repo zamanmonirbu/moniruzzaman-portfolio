@@ -1,15 +1,30 @@
 "use client"
 
 import { useUser } from "@/hooks/use-user"
+import { Skeleton, SkeletonLine } from "@/components/ui/skeleton"
 
 export default function WorkExperienceSection() {
   const { data: user, isLoading } = useUser()
 
-  if (isLoading) return <div className="py-8">Loading...</div>
-
-  if (!user?.workExperience || user.workExperience.length === 0) {
-    return null
+  if (isLoading) {
+    return (
+      <div className="py-8 border-b border-border space-y-6">
+        <Skeleton className="h-8 w-48" />
+        {[1, 2].map((i) => (
+          <div key={i} className="space-y-3">
+            <div className="flex justify-between">
+              <Skeleton className="h-6 w-64" />
+              <Skeleton className="h-4 w-28" />
+            </div>
+            <SkeletonLine className="w-48" />
+            <SkeletonLine className="w-full" />
+          </div>
+        ))}
+      </div>
+    )
   }
+
+  if (!user?.workExperience?.length) return null
 
   return (
     <div className="py-8 border-b border-border">
