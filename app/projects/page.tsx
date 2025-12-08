@@ -1,14 +1,15 @@
+// app/projects/page.tsx
 "use client"
 
-import { useState } from "react"
 import Image from "next/image"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import ProjectModal from "@/components/project-modal"
+import { ProjectSkeleton } from "@/components/ui/skeleton-loader"
 import { useProjects } from "@/hooks/use-projects"
 import type { Project } from "@/lib/types"
+import { useState } from "react"
 
-// Shared button components (used in list & modal)
 const LiveButton = ({ href }: { href: string }) => (
   <a
     href={href}
@@ -37,21 +38,17 @@ const CodeButton = ({ href, label }: { href: string; label: string }) => (
   </a>
 )
 
+const MainContent = ({ children }: { children: React.ReactNode }) => (
+  <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+      <div className="p-8 md:p-12">{children}</div>
+    </div>
+  </div>
+)
+
 export default function ProjectsPage() {
   const { data: projects, isLoading } = useProjects()
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <MainContent>
-          <p className="text-center text-foreground/60 py-foreground/60 py-20 text-lg">Loading projects...</p>
-        </MainContent>
-        <Footer />
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -60,63 +57,54 @@ export default function ProjectsPage() {
       <MainContent>
         <h1 className="text-4xl font-bold mb-12 text-foreground">Projects</h1>
 
-        <div className="space-y-12">
-          {projects?.map((project) => (
-            <article
-              key={project._id}
-              onClick={() => setSelectedProject(project)}
-              className="group flex flex-col md:flex-row gap-8 pb-12 border-b border-border/30 last:border-0 cursor-pointer transition-all hover:-translate-y-0.5"
-            >
-              <div className="md:w-80 shrink-0">
-                <div className="overflow-hidden rounded-xl shadow-lg">
-                  <Image
-                    src={project.timelinePhoto || "/placeholder.svg"}
-                    alt={project.name}
-                    width={320}
-                    height={200}
-                    className="w-full h-52 object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+        {isLoading ? (
+          <ProjectSkeleton />
+        ) : projects?.length === 0 ? (
+          <p className="text-center text-foreground/60 py-20">No projects yet.</p>
+        ) : (
+          <div className="space-y-12">
+            {projects?.map((project) => (
+              <article
+                key={project._id}
+                onClick={() => setSelectedProject(project)}
+                className="group flex flex-col md:flex-row gap-8 pb-12 border-b border-border/30 last:border-0 cursor-pointer transition-all hover:-translate-y-0.5"
+              >
+                <div className="md:w-80 shrink-0">
+                  <div className="overflow-hidden rounded-xl shadow-lg">
+                    <Image
+                      src={project.timelinePhoto || "/placeholder.svg"}
+                      alt={project.name}
+                      width={320}
+                      height={200}
+                      className="w-full h-52 object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors">
-                  {project.name}
-                </h2>
-                <p className="text-foreground/70 leading-relaxed mb-6 line-clamp-3">
-                  {project.description}
-                </p>
-
-                <div className="flex flex-wrap gap-3">
-                  {project.liveLink && <LiveButton href={project.liveLink} />}
-                  {project.frontendCode && <CodeButton href={project.frontendCode} label="Frontend Code" />}
-                  {project.backendCode && <CodeButton href={project.backendCode} label="Backend Code" />}
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors">
+                    {project.name}
+                  </h2>
+                  <p className="text-foreground/70 leading-relaxed mb-6 line-clamp-3">
+                    {project.description}
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {project.liveLink && <LiveButton href={project.liveLink} />}
+                    {project.frontendCode && <CodeButton href={project.frontendCode} label="Frontend Code" />}
+                    {project.backendCode && <CodeButton href={project.backendCode} label="Backend Code" />}
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
-        </div>
+              </article>
+            ))}
+          </div>
+        )}
       </MainContent>
 
       {selectedProject && (
-        <ProjectModal
-          project={selectedProject}
-          onClose={() => setSelectedProject(null)}
-        />
+        <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
       )}
 
       <Footer />
-    </div>
-  )
-}
-
-// Reusable wrapper — use this on Home, Blogs, Projects
-function MainContent({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
-        <div className="p-8 md:p-12">{children}</div>
-      </div>
     </div>
   )
 }

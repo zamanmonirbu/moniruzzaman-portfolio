@@ -1,18 +1,45 @@
 "use client"
 
 import Image from "next/image"
-import { Mail, Github, Linkedin, Twitter, Instagram, Locate } from "lucide-react"
+import { Mail, Github, Linkedin, Locate } from "lucide-react"
 import { useUser } from "@/hooks/use-user"
+import { Skeleton, SkeletonLine, SkeletonAvatar } from "@/components/ui/skeleton"
 
 export default function HeroSection() {
-  const { data: user, isLoading } = useUser();
-
-
+  const { data: user, isLoading } = useUser()
 
   if (isLoading) {
-    return <div className="py-8">Loading...</div>
+    return (
+      <div className="py-8 border-b border-border">
+        <div className="flex justify-between items-start gap-8">
+          <div className="flex-1 space-y-4">
+            <Skeleton className="h-10 w-96 rounded-lg" />
+            <SkeletonLine className="w-full" />
+            <SkeletonLine className="w-4/5" />
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-accent rounded-full" />
+              <SkeletonLine className="w-32" />
+            </div>
+            <div className="flex gap-3 pt-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="w-10 h-10 rounded-lg" />
+              ))}
+            </div>
+          </div>
+
+          <div className="shrink-0">
+            <div className="relative w-32 h-32">
+              {/* Animated border */}
+                <SkeletonAvatar />
+              </div>
+            {/* </div> */}
+          </div>
+        </div>
+      </div>
+    )
   }
 
+  // Your original loaded content (unchanged)
   const displayName = user?.name || "MD. MONIRUZZAMAN"
   const displayBio = user?.bio || "Software Engineer, Educator, and Programming Enthusiast."
   const displayLocation = user?.education?.[0]?.institution || "Dhaka, Bangladesh"
