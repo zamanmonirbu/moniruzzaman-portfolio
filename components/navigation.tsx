@@ -38,9 +38,9 @@ export default function Navigation() {
 
   return (
     <nav
-      className={`sticky top-0 z-50 transition-all duration-300 border-b border-border/50 ${
+      className={`sticky top-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? "bg-background/80 backdrop-blur-xl shadow-sm" 
+          ? "bg-background/80 backdrop-blur-sm" 
           : "bg-background"
       }`}
     >
