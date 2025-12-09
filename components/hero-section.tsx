@@ -11,9 +11,9 @@ export default function HeroSection() {
   if (isLoading) {
     return (
       <div className="py-8 border-b border-border">
-        <div className="flex justify-between items-start gap-8">
-          <div className="flex-1 space-y-4">
-            <Skeleton className="h-10 w-96 rounded-lg" />
+        <div className="flex flex-col md:flex-row justify-between items-start gap-8">
+          <div className="flex-1 space-y-4 w-full">
+            <Skeleton className="h-10 w-80 md:w-96 rounded-lg" />
             <SkeletonLine className="w-full" />
             <SkeletonLine className="w-4/5" />
             <div className="flex items-center gap-2">
@@ -27,19 +27,14 @@ export default function HeroSection() {
             </div>
           </div>
 
-          <div className="shrink-0">
-            <div className="relative w-32 h-32">
-              {/* Animated border */}
-                <SkeletonAvatar />
-              </div>
-            {/* </div> */}
+          <div className="shrink-0 mx-auto md:mx-0">
+            <SkeletonAvatar  />
           </div>
         </div>
       </div>
     )
   }
 
-  // Your original loaded content (unchanged)
   const displayName = user?.name || "MD. MONIRUZZAMAN"
   const displayBio = user?.bio || "Software Engineer, Educator, and Programming Enthusiast."
   const displayLocation = user?.education?.[0]?.institution || "Dhaka, Bangladesh"
@@ -49,68 +44,68 @@ export default function HeroSection() {
     <>
       <style jsx>{`
         @keyframes rotate-border {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
-        
         .animated-border {
           animation: rotate-border 5s linear infinite;
         }
       `}</style>
 
       <div className="py-8 border-b border-border">
-        <div className="flex justify-between items-start gap-8">
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-2">&lt;{displayName}/&gt;</h1>
+        <div className="flex flex-col md:flex-row justify-between items-start gap-8">
+          {/* Text Content */}
+          <div className="flex-1 order-2 md:order-1">
+            <h1 className="text-2xl md:text-4xl font-bold mb-3">&lt;{displayName}/&gt;</h1>
 
-            <p className="text-foreground/80 text-sm leading-relaxed mb-4">{displayBio}</p>
+            <p className="text-foreground/80 text-sm md:text-base leading-relaxed mb-4 max-w-2xl">
+              {displayBio}
+            </p>
 
             <div className="flex items-center gap-2 text-foreground/60 text-sm mb-6">
               <Locate size={16} className="shrink-0" />
               <span>{displayLocation}</span>
             </div>
 
-
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               {user?.socialLinks?.map((link) => (
                 <a
                   key={link.platform}
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 hover:bg-muted rounded transition"
+                  className="p-3 hover:bg-muted rounded-xl transition-all hover:scale-110"
                   title={link.platform}
                 >
-                  {link.platform === "github" && <Github size={18} />}
-                  {link.platform === "linkedin" && <Linkedin size={18} />}
-                  {link.platform === "gmail" && <Mail size={18} />}
+                  {link.platform === "github" && <Github size={20} />}
+                  {link.platform === "linkedin" && <Linkedin size={20} />}
+                  {link.platform === "gmail" && <Mail size={20} />}
                 </a>
               ))}
             </div>
           </div>
 
-          <div className="shrink-0">
-            <div className="relative w-32 h-32">
-              {/* Animated gradient border (only this rotates) */}
-              <div className="absolute inset-0 rounded-full animated-border pointer-events-none" style={{
-                background: 'conic-gradient(from 0deg, #ef4444 0% 20%, #f59e0b 20% 40%, #10b981 40% 60%, #3b82f6 60% 80%, #8b5cf6 80% 100%)'
-              }}></div>
+          {/* Profile Image with Animated Border */}
+          <div className="shrink-0 order-1 md:order-2 mx-auto md:mx-0">
+            <div className="relative w-32 h-32 md:w-36 md:h-36">
+              {/* Rotating gradient border */}
+              <div
+                className="absolute inset-0 rounded-full animated-border pointer-events-none"
+                style={{
+                  background:
+                    "conic-gradient(from 0deg, #ef4444 0% 20%, #f59e0b 20% 40%, #10b981 40% 60%, #3b82f6 60% 80%, #8b5cf6 80% 100%)",
+                }}
+              />
 
-              {/* Fixed image in center */}
-              <div className="absolute inset-1 rounded-full bg-background flex items-center justify-center">
-                <div className="relative w-full h-full rounded-full overflow-hidden">
-                  <Image
-                    src={profileImage || "/placeholder.svg"}
-                    alt={displayName}
-                    width={120}
-                    height={120}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
+              {/* Inner image (fixed) */}
+              <div className="absolute inset-1.5 rounded-full bg-background overflow-hidden">
+                <Image
+                  src={profileImage}
+                  alt={displayName}
+                  width={140}
+                  height={140}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>

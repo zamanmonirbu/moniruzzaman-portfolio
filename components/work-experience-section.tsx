@@ -29,7 +29,7 @@ export default function WorkExperienceSection() {
   return (
     <div className="py-8 border-b border-border">
       <h2 className="text-2xl font-bold mb-6">Work Experience</h2>
-      <div className="space-y-6">
+      <div className="space-y-6 text-justify">
         {user.workExperience.map((exp, idx) => (
           <div key={idx}>
             <div className="flex justify-between items-start gap-4 mb-2">

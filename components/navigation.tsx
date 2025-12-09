@@ -5,15 +5,15 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useTheme } from "@/components/theme-provider"
-import { Sun, Moon } from "lucide-react"
+import { Sun, Moon, Menu, X } from "lucide-react"
 import { useUser } from "@/hooks/use-user"
 import Image from "next/image"
 import NavigationSkeleton from "./ui/skeleton-loader"
 
-
 export default function Navigation() {
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const { data: user, isLoading: userLoading } = useUser()
 
@@ -24,6 +24,11 @@ export default function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
+
   const isActive = (path: string) =>
     path === "/" ? pathname === "/" : pathname.startsWith(path)
 
@@ -31,7 +36,6 @@ export default function Navigation() {
   const navLinkInactive = "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
   const navLinkActive = "bg-primary text-primary-foreground shadow-md hover:shadow-lg"
 
-  // Show skeleton while user is loading OR on first render
   if (userLoading) {
     return <NavigationSkeleton />
   }
@@ -48,9 +52,9 @@ export default function Navigation() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center">
-          {user?.profilePicture ? (
+          {user?.logo ? (
             <Image
-              src={user.profilePicture}
+              src={user.logo}
               alt="Monir Dev"
               width={32}
               height={32}
@@ -63,9 +67,9 @@ export default function Navigation() {
           )}
         </Link>
 
-        {/* Nav Links + Theme Toggle */}
-        <div className="flex items-center gap-2">
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl backdrop-blur-sm bg-background/50">
+        {/* Desktop Links */}
+        <div className="hidden md:flex items-center gap-2">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-2xl backdrop-blur-sm bg-background/50">
             <Link href="/" className={`${navLinkBase} ${isActive("/") ? navLinkActive : navLinkInactive}`}>
               About
             </Link>
@@ -89,7 +93,41 @@ export default function Navigation() {
             )}
           </button>
         </div>
+
+        {/* Mobile Menu Button */}
+        <div className="flex items-center gap-3 md:hidden">
+          <button
+            onClick={toggleTheme}
+            className="p-2.5 rounded-xl hover:bg-foreground/5"
+          >
+            {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
+          </button>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-border/30 bg-background">
+          <div className="px-6 py-4 space-y-2">
+            <Link href="/" className={`block ${navLinkBase} ${isActive("/") ? navLinkActive : navLinkInactive}`}>
+              About
+            </Link>
+            <Link href="/projects" className={`block ${navLinkBase} ${isActive("/projects") ? navLinkActive : navLinkInactive}`}>
+              Projects
+            </Link>
+            <Link href="/blogs" className={`block ${navLinkBase} ${isActive("/blogs") ? navLinkActive : navLinkInactive}`}>
+              Articles
+            </Link>
+          </div>
+        </div>
+      )}
     </nav>
   )
 }

@@ -13,16 +13,20 @@ export default function AboutSection() {
         <SkeletonLine className="w-full" />
         <SkeletonLine className="w-full" />
         <SkeletonLine className="w-5/6" />
+        <SkeletonLine className="w-11/12" />
       </div>
     )
   }
 
   return (
-    <div className="py-8 border-b border-border">
-      <h2 className="text-2xl font-bold mb-4">About Me</h2>
-      <p className="text-foreground/80 text-sm leading-relaxed">
-        {user?.about || "I am a passionate tech entrepreneur and educator..."}
-      </p>
+    <div className="py-10 md:py-12 border-b border-border">
+      <h2 className="text-2xl md:text-3xl font-bold mb-5 md:mb-6">About Me</h2>
+      
+      <div className="max-w-none md:max-w-3xl text-justify">
+        <p className="text-sm text-foreground/70 mb-1 leading-relaxed">
+          {user?.about || "I am a passionate tech entrepreneur and educator..."}
+        </p>
+      </div>
     </div>
   )
 }

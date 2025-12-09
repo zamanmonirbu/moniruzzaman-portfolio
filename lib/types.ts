@@ -21,6 +21,12 @@ export interface Education {
   _id?: string
 }
 
+export interface SkillGroup {
+  skillTile: string
+  skillName: string[]
+  _id: string
+}
+
 export interface User {
   _id: string
   name: string
@@ -32,9 +38,10 @@ export interface User {
   about?: string
   workExperience: WorkExperience[]
   education: Education[]
-  skills: string[]
+  skills: SkillGroup[]
   createdAt: string
   updatedAt: string
+  logo?: string
 }
 
 export interface Blog {
@@ -63,6 +70,9 @@ export interface Project {
   cloudinaryId: string
   createdAt: string
   updatedAt: string
+  otherPhotos: string[]
+  technologies: string[]
+  videoLink?: string
 }
 
 export interface ApiResponse<T> {

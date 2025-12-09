@@ -1,45 +1,43 @@
-// app/projects/page.tsx
 "use client"
 
 import Image from "next/image"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
-import ProjectModal from "@/components/project-modal"
 import { ProjectSkeleton } from "@/components/ui/skeleton-loader"
 import { useProjects } from "@/hooks/use-projects"
 import type { Project } from "@/lib/types"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-const LiveButton = ({ href }: { href: string }) => (
+// Button supporting dark/light mode
+const CodeButton = ({
+  href,
+  label,
+  active,
+  onClick,
+}: {
+  href: string
+  label: string
+  active?: boolean
+  onClick?: () => void
+}) => (
   <a
     href={href}
     target="_blank"
     rel="noopener noreferrer"
-    className="inline-flex items-center gap-2 text-xs font-medium bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-all shadow-sm hover:shadow-md"
+    onClick={onClick}
+    className={`inline-flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-lg border transition-all duration-200
+      ${active
+        ? "bg-primary text-primary-foreground border-primary"
+        : "bg-muted text-foreground border-border"
+      }
+      hover:${active ? "bg-primary/90" : "bg-muted/70"}`}
   >
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-    </svg>
-    Watch Video
-  </a>
-)
-
-const CodeButton = ({ href, label }: { href: string; label: string }) => (
-  <a
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="inline-flex items-center gap-2 text-xs font-medium bg-muted text-foreground px-4 py-2 rounded-lg hover:bg-muted/70 border border-border/50 transition-all"
-  >
-    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-    </svg>
     {label}
   </a>
 )
 
 const MainContent = ({ children }: { children: React.ReactNode }) => (
-  <div className="max-w-4xl mx-auto px-4 py-8">
+  <div className="max-w-5xl mx-auto px-4 py-8">
     <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
       <div className="p-8 md:p-12">{children}</div>
     </div>
@@ -48,61 +46,159 @@ const MainContent = ({ children }: { children: React.ReactNode }) => (
 
 export default function ProjectsPage() {
   const { data: projects, isLoading } = useProjects()
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [activeImageIndex, setActiveImageIndex] = useState<number[]>([])
+  const [showFullDesc, setShowFullDesc] = useState<string[]>([])
+  const [activeButton, setActiveButton] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    if (projects?.length) {
+      setActiveImageIndex(projects.map(() => 0))
+    }
+  }, [projects])
+
+  const toggleDesc = (id: string) => {
+    setShowFullDesc((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    )
+  }
+
+  const nextImage = (projectIndex: number) => {
+    setActiveImageIndex((prev) =>
+      prev.map((idx, i) => {
+        if (i !== projectIndex) return idx
+        const total = projects![i].otherPhotos?.length
+          ? projects![i].otherPhotos.length + 1
+          : 1
+        return (idx + 1) % total
+      })
+    )
+  }
+
+  const prevImage = (projectIndex: number) => {
+    setActiveImageIndex((prev) =>
+      prev.map((idx, i) => {
+        if (i !== projectIndex) return idx
+        const total = projects![i].otherPhotos?.length
+          ? projects![i].otherPhotos.length + 1
+          : 1
+        return (idx - 1 + total) % total
+      })
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <Navigation />
 
       <MainContent>
-        <h1 className="text-4xl font-bold mb-12 text-foreground">Projects</h1>
+        <h1 className="text-4xl font-bold mb-12">Projects</h1>
 
         {isLoading ? (
           <ProjectSkeleton />
         ) : projects?.length === 0 ? (
           <p className="text-center text-foreground/60 py-20">No projects yet.</p>
         ) : (
-          <div className="space-y-12">
-            {projects?.map((project) => (
-              <article
-                key={project._id}
-                onClick={() => setSelectedProject(project)}
-                className="group flex flex-col md:flex-row gap-8 pb-12 border-b border-border/30 last:border-0 cursor-pointer transition-all hover:-translate-y-0.5"
-              >
-                <div className="md:w-80 shrink-0">
-                  <div className="overflow-hidden rounded-xl shadow-lg">
-                    <Image
-                      src={project.timelinePhoto || "/placeholder.svg"}
-                      alt={project.name}
-                      width={320}
-                      height={200}
-                      className="w-full h-52 object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
-                </div>
+          <div className="space-y-16">
+            {projects?.map((project: Project, idx: number) => {
+              const allImages = [project.timelinePhoto, ...(project.otherPhotos || [])]
+              const currentImage = allImages[activeImageIndex[idx]] || project.timelinePhoto
+              const isExpanded = showFullDesc.includes(project._id)
 
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors">
-                    {project.name}
-                  </h2>
-                  <p className="text-foreground/70 leading-relaxed mb-6 line-clamp-3">
-                    {project.description}
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {project.liveLink && <LiveButton href={project.liveLink} />}
-                    {project.frontendCode && <CodeButton href={project.frontendCode} label="Frontend Code" />}
-                    {project.backendCode && <CodeButton href={project.backendCode} label="Backend Code" />}
+              return (
+                <article
+                  key={project._id}
+                  className="flex flex-col md:flex-row gap-8 border-b border-border/30 pb-12 last:border-0"
+                >
+                  {/* Carousel */}
+                  <div className="md:w-80 shrink-0 relative overflow-hidden rounded-xl shadow-lg h-52">
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={currentImage || "/placeholder.svg"}
+                        alt={project.name}
+                        fill
+                        className="object-cover transition-transform duration-700 ease-in-out"
+                      />
+                    </div>
+
+                    {/* Prev/Next Buttons */}
+                    <button
+                      onClick={() => prevImage(idx)}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/40 text-white p-1 rounded-full hover:bg-black/70"
+                    >
+                      &#10094;
+                    </button>
+                    <button
+                      onClick={() => nextImage(idx)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/40 text-white p-1 rounded-full hover:bg-black/70"
+                    >
+                      &#10095;
+                    </button>
                   </div>
-                </div>
-              </article>
-            ))}
+
+
+                  {/* Details */}
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold mb-3 tr">{project.name}</h2>
+                      <p className="text-foreground/70 leading-relaxed mb-2 text-justify">
+                        {isExpanded ? project.description : project.description.slice(0, 200)}
+                        {project.description.length > 200 && (
+                          <button
+                            onClick={() => toggleDesc(project._id)}
+                            className="ml-2 text-primary underline text-sm"
+                          >
+                            {isExpanded ? "See Less" : "See More"}
+                          </button>
+                        )}
+                      </p>
+
+                      {project.technologies?.length > 0 && (
+                        <p className="text-foreground/80 mb-2">
+                          <strong>Technologies:</strong> {project.technologies.join(", ")}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="flex flex-wrap gap-3 mt-4">
+                      {project.liveLink && (
+                        <CodeButton
+                          href={project.liveLink}
+                          label="Demo Video"
+                          active={activeButton[project._id] === "Demo Video" || !activeButton[project._id]}
+                          onClick={() =>
+                            setActiveButton((prev) => ({ ...prev, [project._id]: "Demo Video" }))
+                          }
+                        />
+                      )}
+                      {project.frontendCode && (
+                        <CodeButton
+                          href={project.frontendCode}
+                          label="Frontend Code"
+                          active={activeButton[project._id] === "Frontend Code"}
+                          onClick={() =>
+                            setActiveButton((prev) => ({ ...prev, [project._id]: "Frontend Code" }))
+                          }
+                        />
+                      )}
+                      {project.backendCode && (
+                        <CodeButton
+                          href={project.backendCode}
+                          label="Backend Code"
+                          active={activeButton[project._id] === "Backend Code"}
+                          onClick={() =>
+                            setActiveButton((prev) => ({ ...prev, [project._id]: "Backend Code" }))
+                          }
+                        />
+                      )}
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
           </div>
         )}
       </MainContent>
-
-      {selectedProject && (
-        <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
-      )}
 
       <Footer />
     </div>
