@@ -37,7 +37,10 @@ export default function WorkExperienceSection() {
               <span className="text-sm text-foreground/60 shrink-0">{exp.timePeriod}</span>
             </div>
             <p className="text-sm text-foreground/70 mb-1">{exp.designation}</p>
-            <p className="text-sm text-foreground/70">{exp.details}</p>
+            <div
+              className="prose prose-sm max-w-none text-foreground/70"
+              dangerouslySetInnerHTML={{ __html: exp.details }}
+            />
           </div>
         ))}
       </div>

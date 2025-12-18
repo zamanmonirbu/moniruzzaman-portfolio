@@ -140,17 +140,21 @@ export default function ProjectsPage() {
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <h2 className="text-2xl font-bold mb-3 tr">{project.name}</h2>
-                      <p className="text-foreground/70 leading-relaxed mb-2 text-justify">
-                        {isExpanded ? project.description : project.description.slice(0, 200)}
-                        {project.description.length > 200 && (
-                          <button
-                            onClick={() => toggleDesc(project._id)}
-                            className="ml-2 text-primary underline text-sm"
-                          >
-                            {isExpanded ? "See Less" : "See More"}
-                          </button>
-                        )}
-                      </p>
+                    <div
+  className="text-foreground/70 leading-relaxed mb-2 text-justify"
+  dangerouslySetInnerHTML={{
+    __html: isExpanded ? project.description : project.description.slice(0, 200),
+  }}
+/>
+
+{project.description.length > 200 && (
+  <button
+    onClick={() => toggleDesc(project._id)}
+    className="ml-2 text-primary underline text-sm"
+  >
+    {isExpanded ? "See Less" : "See More"}
+  </button>
+)}
 
                       {project.technologies?.length > 0 && (
                         <p className="text-foreground/80 mb-2">
