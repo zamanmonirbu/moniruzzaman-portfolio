@@ -1,4 +1,3 @@
-// app/blogs/page.tsx
 "use client"
 
 import { useState } from "react"
@@ -6,15 +5,14 @@ import Image from "next/image"
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import BlogModal from "@/components/blog-modal"
-// import { PageLoader } from "@/components/ui/page-loader"
 import { BlogSkeleton } from "@/components/ui/skeleton-loader"
 import { useBlogs } from "@/hooks/use-blogs"
 import type { Blog } from "@/lib/types"
 
 const MainContent = ({ children }: { children: React.ReactNode }) => (
-  <div className="max-w-4xl mx-auto px-4 py-8">
-    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-      <div className="p-8 md:p-12">{children}</div>
+  <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <div className="bg-card border border-border rounded-2xl shadow-sm">
+      <div className="p-6 sm:p-8 md:p-12">{children}</div>
     </div>
   </div>
 )
@@ -24,55 +22,76 @@ export default function BlogsPage() {
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null)
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <Navigation />
 
       <MainContent>
-        <h1 className="text-4xl font-bold mb-12 text-foreground">Articles</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold mb-10 sm:mb-12">
+          Articles
+        </h1>
 
         {isLoading ? (
           <BlogSkeleton />
-          // Or use simple: <PageLoader message="Loading articles..." />
         ) : blogs?.length === 0 ? (
-          <p className="text-center text-foreground/60 py-20">No articles yet.</p>
+          <p className="text-center text-foreground/60 py-20">
+            No articles yet.
+          </p>
         ) : (
-          <div className="space-y-10">
+          <div className="space-y-10 sm:space-y-14">
             {blogs?.map((blog) => (
               <article
                 key={blog._id}
                 onClick={() => setSelectedBlog(blog)}
-                className="group flex gap-8 cursor-pointer transition-all hover:-translate-y-1"
+                className="
+                  group cursor-pointer
+                  flex flex-col sm:flex-row
+                  gap-5 sm:gap-8
+                  transition-all hover:-translate-y-1
+                "
               >
-                <div className="shrink-0">
-                  <div className="w-52 h-36 overflow-hidden rounded-xl shadow-lg">
+                {/* IMAGE */}
+                <div className="shrink-0 w-full sm:w-52">
+                  <div className="w-full h-48 sm:h-36 overflow-hidden rounded-xl shadow-lg">
                     <Image
                       src={blog.featuredImage || "/placeholder.svg"}
                       alt={blog.title}
-                      width={208}
-                      height={144}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      width={400}
+                      height={300}
+                      className="
+                        w-full h-full object-cover
+                        transition-transform duration-700
+                        group-hover:scale-110
+                      "
                     />
                   </div>
                 </div>
 
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-3 text-foreground group-hover:text-primary transition">
-                    {blog.title}
-                  </h2>
-                  <p className="text-foreground/70 mb-4 line-clamp-2 leading-relaxed">
-                    {blog.excerpt}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {blog.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full font-medium"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                {/* CONTENT */}
+                <div className="flex-1 flex flex-col justify-between">
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 group-hover:text-primary transition">
+                      {blog.title}
+                    </h2>
+
+                    <p className="text-foreground/70 mb-3 sm:mb-4 leading-relaxed line-clamp-2">
+                      {blog.excerpt}
+                    </p>
+
+                    {/* TAGS */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {blog.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full font-medium"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
+
+                  {/* FOOTER */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <time className="text-sm text-foreground/50">
                       {new Date(blog.createdAt).toLocaleDateString("en-US", {
                         year: "numeric",
@@ -80,15 +99,34 @@ export default function BlogsPage() {
                         day: "numeric",
                       })}
                     </time>
+
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
                         setSelectedBlog(blog)
                       }}
-                      className="inline-flex items-center gap-2 text-xs font-medium bg-primary text-primary-foreground px-5 py-2.5 rounded-lg hover:bg-primary/90 transition-all shadow-sm hover:shadow-md"
+                      className="
+                        inline-flex items-center gap-2
+                        text-xs font-medium
+                        bg-primary text-primary-foreground
+                        px-5 py-2.5 rounded-lg
+                        hover:bg-primary/90 transition-all
+                        shadow-sm hover:shadow-md
+                        w-fit
+                      "
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                        />
                       </svg>
                       Read Article
                     </button>
@@ -100,7 +138,13 @@ export default function BlogsPage() {
         )}
       </MainContent>
 
-      {selectedBlog && <BlogModal blog={selectedBlog} onClose={() => setSelectedBlog(null)} />}
+      {selectedBlog && (
+        <BlogModal
+          blog={selectedBlog}
+          onClose={() => setSelectedBlog(null)}
+        />
+      )}
+
       <Footer />
     </div>
   )
