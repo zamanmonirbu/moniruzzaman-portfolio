@@ -80,3 +80,18 @@ export interface ApiResponse<T> {
   message: string
   data: T
 }
+export interface BlogsResponse {
+  status: boolean
+  message: string
+  data: {
+    blogs: Blog[]
+    pagination: {
+      currentPage: number
+      totalPages: number
+      totalBlogs: number
+      limit: number
+      hasNextPage: boolean
+      hasPrevPage: boolean
+    }
+  }
+}

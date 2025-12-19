@@ -1,15 +1,16 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, keepPreviousData } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api-client"
-import type { Blog, ApiResponse } from "@/lib/types"
+import type { BlogsResponse } from "@/lib/types"
 
-export function useBlogs() {
+export function useBlogs(page: number) {
   return useQuery({
-    queryKey: ["blogs"],
+    queryKey: ["blogs", page],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<Blog[]>>("/api/v1/blog")
-      return response.data
+      const response = await apiClient.get<BlogsResponse>(`/api/v1/blog?page=${page}`)
+      return response.data // Return just the data property
     },
+    placeholderData: keepPreviousData,
   })
 }
